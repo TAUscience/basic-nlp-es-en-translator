@@ -10,7 +10,8 @@ with open(file_path, 'r', encoding='utf-8') as f:
         # Separar la línea en dos partes (en inglés y en español)
         parts = line.strip().split('\t')  # Asumiendo que las traducciones están separadas por tabuladores
         if len(parts) == 2:
-            pairs.append((parts[0], parts[1]))  # (inglés, español)
+            # Invertir el orden para español-inglés
+            pairs.append((parts[1], parts[0]))  # (español, inglés)
 
 # Convertir los pares en un tf.data.Dataset
 def create_dataset(pairs):
@@ -18,8 +19,8 @@ def create_dataset(pairs):
     dataset = tf.data.Dataset.from_generator(
         lambda: pairs, 
         output_signature=(
-            tf.TensorSpec(shape=(), dtype=tf.string),  # Texto en inglés
-            tf.TensorSpec(shape=(), dtype=tf.string)   # Texto en español
+            tf.TensorSpec(shape=(), dtype=tf.string),  # Texto en español
+            tf.TensorSpec(shape=(), dtype=tf.string)   # Texto en inglés
         )
     )
     return dataset
@@ -40,5 +41,3 @@ remaining_dataset = full_dataset.skip(train_size)
 
 val_dataset = remaining_dataset.take(val_size)
 test_dataset = remaining_dataset.skip(val_size)
-
-
